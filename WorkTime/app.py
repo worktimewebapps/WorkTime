@@ -15,11 +15,18 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
 
+
+
+
 @app.route('/')
 def main():
+	cur = mysql.connection.cursor()
+	aname = 'Administrator'
+	ausername = 'admin'
+	adminpass = 'admin'
+	passadmin = sha256_crypt.encrypt(str(adminpass))
+	cur.execute("INSERT INTO tbl_user(name, username, password, admin) VALUES (%s,%s, %s, true)", (aname, ausername, passadmin))
 	return render_template('index.html')
-
-
 
 
 # Registration form class
@@ -41,10 +48,9 @@ def register():
 		name = form.name.data
 		username = form.username.data
 		password = sha256_crypt.encrypt(str(form.password.data))
-
 		cur = mysql.connection.cursor()
 
-		cur.execute("INSERT INTO tbl_user(name, username, password) VALUES (%s,%s,%s)", (name, username, password))
+		cur.execute("INSERT INTO tbl_user(name, username, password, admin) VALUES (%s,%s,%s,false)", (name, username, password))
 		mysql.connection.commit()
 		cur.close()
 
@@ -102,6 +108,8 @@ def is_logged_in(f):
 			flash('Unauthorized, please login', 'danger')
 			return(redirect(url_for('login')))
 	return wrap
+
+
 # Logout
 @app.route('/logout')
 def logout():
@@ -117,19 +125,32 @@ def dashboard():
 	return render_template('dashboard.html')
 
 
+# Scheduler form
+class SchedulerForm(Form):
+	username = StringField('Username', [validators.Length(min=1, max=50)])
+	dayofweek = StringField('Day of Week', [validators.Length(min=4, max=25)])
+	starttime = StringField('Start Time', [validators.Length(min=1, max=6)])
+	endtime = StringField('End Time', [validators.Length(min=1, max=6)])
+
+# Scheduler
+@app.route('/scheduler', methods=['GET', 'POST'])
+def scheduler():
+	form = SchedulerForm(request.form)
+	if request.method == 'POST' and form.validate():
+		username = form.username.data
+		dayofweek = form.dayofweek.data
+		starttime = form.starttime.data
+		endtime = form.endtime.data
+
+		cur = mysql.connection.cursor()
+
+		cur.execute("INSERT INTO tbl_times(username, dayofweek, starttime, endtime) VALUES (%s,%s,%s,%s)", (username, dayofweek, starttime, endtime))
+
+
+
+	return render_template('scheduler.html', form=form)
+
 
 if __name__ == '__main__':
 	app.secret_key='secret123'
 	app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
-
