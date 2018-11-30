@@ -18,8 +18,6 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
 
 
-
-
 @app.route('/')
 def main():
 	
@@ -27,7 +25,7 @@ def main():
 	curr = mysql.connection.cursor()
 	results = curr.execute("SELECT * FROM tbl_user WHERE admin = true")
 	curr.close()
-	
+
 	if results < 1:
 		aname = 'Administrator'
 		ausername = 'admin'
@@ -90,13 +88,20 @@ def login():
 			data = cur.fetchone()
 			password = data['password']
 			name = data['name']
+			admin = data['admin']
 
 
 			# Compare passwords
 			if sha256_crypt.verify(password_pre, password):
+				session['is_admin'] = admin
 				session['logged_in'] = True
 				session['username'] = username
 				session['name'] = name
+				# session['dayofweek'] = dayofweek
+				# session['starttime'] = startime
+				# session['endtime'] = endtime
+
+
 
 				flash('You are now logged in', 'success')
 				return redirect(url_for('dashboard'))
@@ -156,15 +161,22 @@ def scheduler():
 
 		cur = mysql.connection.cursor()
 
+		result = cur.execute("SELECT * FROM tbl_user WHERE username = %s", [username])
+
+		if result < 1:
+			error = "User does not exist"
+			return render_template('scheduler.html', error=error, form=form)
+		
 		cur.execute("INSERT INTO tbl_times(username, dayofweek, starttime, endtime) VALUES (%s,%s,%s,%s)", (username, dayofweek, starttime, endtime))
+		mysql.connection.commit()
+		cur.close()
 
-
-
+		flash(u"Successfully Added", "success")
 	return render_template('scheduler.html', form=form)
+	
 
 
 if __name__ == '__main__':
-
 	app.secret_key='secret123'
 	app.run(debug=True)
 
