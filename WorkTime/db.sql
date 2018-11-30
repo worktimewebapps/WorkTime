@@ -1,4 +1,4 @@
-drop database work;
+drop database if exists work;
 create database work;
 create table work.tbl_user( 
 	id INT AUTO_INCREMENT, 
