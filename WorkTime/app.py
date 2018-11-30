@@ -142,6 +142,16 @@ def dashboard():
 	return render_template('dashboard.html')
 
 
+def is_admin(f):
+	@wraps(f)
+	def wrap(*args, **kwargs):
+		if ('is_admin' in session):
+			return f(*args, **kwargs)
+		else:
+			flash('You must be an administrator', 'danger')
+			return(redirect(url_for('login')))
+	return wrap
+
 # Scheduler form
 class SchedulerForm(Form):
 	username = StringField('Username', [validators.Length(min=1, max=50)])
@@ -151,6 +161,7 @@ class SchedulerForm(Form):
 
 # Scheduler
 @app.route('/scheduler', methods=['GET', 'POST'])
+@is_admin
 def scheduler():
 	form = SchedulerForm(request.form)
 	if request.method == 'POST' and form.validate():
