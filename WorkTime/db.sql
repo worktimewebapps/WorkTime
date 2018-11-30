@@ -13,3 +13,5 @@ create table work.tbl_times(
 	dayofweek VARCHAR(100) NULL,
    	starttime VARCHAR(100) NULL,
   	endtime VARCHAR(100) NULL);
+
+

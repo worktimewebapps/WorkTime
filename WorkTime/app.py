@@ -1,3 +1,5 @@
+
+
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, session, request
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
@@ -7,9 +9,9 @@ from functools import wraps
 app = Flask(__name__)
 
 #Config MySQL
-app.config['MYSQL_HOST'] = 'localhost:3306'
+app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'pokie123'
+app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'work'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
@@ -20,12 +22,22 @@ mysql = MySQL(app)
 
 @app.route('/')
 def main():
-	cur = mysql.connection.cursor()
-	aname = 'Administrator'
-	ausername = 'admin'
-	adminpass = 'admin'
-	passadmin = sha256_crypt.encrypt(str(adminpass))
-	cur.execute("INSERT INTO tbl_user(name, username, password, admin) VALUES (%s,%s, %s, true)", (aname, ausername, passadmin))
+	
+
+	curr = mysql.connection.cursor()
+	results = curr.execute("SELECT * FROM tbl_user WHERE admin = true")
+	curr.close()
+	
+	if results < 1:
+		aname = 'Administrator'
+		ausername = 'admin'
+		adminpass = 'admin'
+		passadmin = sha256_crypt.encrypt(str(adminpass))
+		cur = mysql.connection.cursor()
+		cur.execute("INSERT INTO tbl_user(name, username, password, admin) VALUES (%s,%s, %s, true)", (aname, ausername, passadmin))
+		mysql.connection.commit()
+		cur.close()
+
 	return render_template('index.html')
 
 
@@ -152,5 +164,10 @@ def scheduler():
 
 
 if __name__ == '__main__':
+
 	app.secret_key='secret123'
 	app.run(debug=True)
+
+
+
+
