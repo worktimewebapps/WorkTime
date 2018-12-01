@@ -11,6 +11,9 @@
         <h1>Employee Work Times</h1> 
         <br>
         <br>
+        <a href="/clearall"><input type="button" class="btn btn-secondary" value="Clear All"></a>
+        <br>
+        <br>
 
     	{% for article in articles %}
     		<li class="list-group-item">
@@ -20,6 +23,10 @@
     			<a><b>End:</b> {{article.endtime}}</a>
     		</li>
     	{% endfor %}
+        <br>
+        <br>
+        <br>
+        <br>
     </ul>
 
 {% endblock %}

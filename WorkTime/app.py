@@ -39,6 +39,35 @@ def main():
 
 
 
+
+# Check to see if admin
+def is_admin(f):
+	@wraps(f)
+	def wrap(*args, **kwargs):
+		chk = session['is_admin']
+		if (chk==1):
+			# app.logger.info(session['is_admin'])   ---- left comment in to show how to print to the console
+			return f(*args, **kwargs)
+		else:
+			flash('You must be an administrator', 'danger')
+			return(redirect(url_for('main')))
+	return wrap
+
+
+
+# Check to see if logged in
+def is_logged_in(f):
+	@wraps(f)
+	def wrap(*args, **kwargs):
+		if('logged_in' in session):
+			return f(*args, **kwargs)
+		else:
+			flash('Unauthorized, please login', 'danger')
+			return(redirect(url_for('login')))
+	return wrap
+
+
+
 # Registration form class
 class RegisterForm(Form):
 	name = StringField('Name', [validators.Length(min=1, max=50)])
@@ -53,6 +82,7 @@ class RegisterForm(Form):
 
 # Register User
 @app.route('/register', methods = ['GET', 'POST'])
+@is_admin
 def register():
 	form = RegisterForm(request.form)
 	if request.method == 'POST' and form.validate():
@@ -118,19 +148,6 @@ def login():
 
 
 
-# Check to see if logged in
-def is_logged_in(f):
-	@wraps(f)
-	def wrap(*args, **kwargs):
-		if('logged_in' in session):
-			return f(*args, **kwargs)
-		else:
-			flash('Unauthorized, please login', 'danger')
-			return(redirect(url_for('login')))
-	return wrap
-
-
-
 # Logout
 @app.route('/logout')
 def logout():
@@ -154,27 +171,12 @@ def dashboard():
 
 
 
-# Check to see if admin
-def is_admin(f):
-	@wraps(f)
-	def wrap(*args, **kwargs):
-		chk = session['is_admin']
-		if (chk==1):
-			# app.logger.info(session['is_admin'])   ---- left comment in to show how to print to the console
-			return f(*args, **kwargs)
-		else:
-			flash('You must be an administrator', 'danger')
-			return(redirect(url_for('main')))
-	return wrap
-
-
-
 # Scheduler form
 class SchedulerForm(Form):
 	username = StringField('Username', [validators.Length(min=1, max=50)])
 	dayofweek = StringField('Day of Week', [validators.Length(min=4, max=25)])
-	starttime = StringField('Start Time', [validators.Length(min=1, max=6)])
-	endtime = StringField('End Time', [validators.Length(min=1, max=6)])
+	starttime = StringField('Start Time', [validators.Length(min=1, max=10)])
+	endtime = StringField('End Time', [validators.Length(min=1, max=10)])
 
 
 
@@ -206,6 +208,16 @@ def scheduler():
 	
 
 
+@app.route('/clearall')
+def clearall():
+	cur = mysql.connection.cursor()
+	cur.execute('DELETE from tbl_times WHERE username <> "admin"')
+	mysql.connection.commit()
+	cur.close()
+	return redirect(url_for('allemployeetimes'))
+
+
+
 @app.route('/allemployeetimes')
 @is_admin
 def allemployeetimes():
@@ -221,10 +233,13 @@ def allemployeetimes():
 
 		x['name'] = res['name']
 
-	app.logger.info(data)
+	# app.logger.info(data)
 
 	cur.close()
 	return render_template('allemployeetimes.html', articles = data)
+
+
+
 
 if __name__ == '__main__':
 	app.secret_key='secret123'
