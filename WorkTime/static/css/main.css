@@ -1,0 +1,17 @@
+body {
+	font-family: 'Open Sans', sans-serif;
+}
+
+#lineView {
+	display: block;
+}
+
+#gridView {
+	display: none;
+}
+
+#schedulecard {
+	width: 175px;
+	height: 120px;
+	display: inline-block;
+}

@@ -5,19 +5,37 @@
 
 {% block body %}
 
-    <h1>Welcome {{session.name}}!</h1> 
-    <br>
-    <br>
     
-    <ul>
-    	<h3>Your Shifts</h3>
-    	{% for article in articles %}
-    		<li class="list-group-item">
-    			<a><b>Day:</b>   &nbsp;&nbsp;  {{article.dayofweek}}<a><br>
-    			<a><b>Start:</b> &nbsp;{{article.starttime}}</a><br>
-    			<a><b>End:</b>   &nbsp;&nbsp; {{article.endtime}}</a>
-    		</li>
-    	{% endfor %}
+
+    <h1 class="mt-4 text-center">Welcome {{session.name}}! </h1>
+    <button class="btn btn-dark float-right" onclick="dashboardViewToggle()">Switch View</button>
+    <br>
+    <br>
+    <ul  id="lineView">
+        <h3>Your Shifts</h3>
+        
+        {% for article in articles %}
+            <li class="list-group-item">
+                <a><b>Day:</b>   &nbsp;&nbsp;  {{article.dayofweek}}</a><br>
+                <a><b>Start:</b> &nbsp;{{article.starttime}}</a><br>
+                <a><b>End:</b>   &nbsp;&nbsp; {{article.endtime}}</a>
+            </li>
+
+        {% endfor %}
+     </ul>
+     <ul  id="gridView">
+        <h3>Your Shifts</h3>
+        {% for article in articles %}
+        <div class="card" style="width:190px; display:inline-block; height: 150px; vertical-align: top; margin:5px;">
+                <div class="card-header text-center">
+                    <a>&nbsp;&nbsp;  {{article.dayofweek}}</a>
+                </div>
+                <div class="card-body text-center">
+                    <a><b>Start:</b> &nbsp;{{article.starttime}}</a><br>
+                    <a><b>End:</b>   &nbsp;&nbsp; {{article.endtime}}</a>
+                </div>
+        </div>
+        {% endfor %}
     </ul>
 
 {% endblock %}
