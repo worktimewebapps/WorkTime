@@ -13,7 +13,7 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'work'
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'         
 
 mysql = MySQL(app)
 
@@ -21,7 +21,6 @@ mysql = MySQL(app)
 @app.route('/')
 def main():
 	
-
 	curr = mysql.connection.cursor()
 	results = curr.execute("SELECT * FROM tbl_user WHERE admin = true")
 	curr.close()
@@ -39,6 +38,7 @@ def main():
 	return render_template('index.html')
 
 
+
 # Registration form class
 class RegisterForm(Form):
 	name = StringField('Name', [validators.Length(min=1, max=50)])
@@ -48,6 +48,7 @@ class RegisterForm(Form):
 		validators.EqualTo('confirm', message="Passwords do not match")
 	])
 	confirm = PasswordField('Comfirm Password')
+
 
 
 # Register User
@@ -90,7 +91,6 @@ def login():
 			name = data['name']
 			admin = data['admin']
 
-
 			# Compare passwords
 			if sha256_crypt.verify(password_pre, password):
 				session['is_admin'] = admin
@@ -116,6 +116,9 @@ def login():
 			return render_template('login.html', error=error)
 	return render_template('login.html')
 
+
+
+# Check to see if logged in
 def is_logged_in(f):
 	@wraps(f)
 	def wrap(*args, **kwargs):
@@ -127,6 +130,7 @@ def is_logged_in(f):
 	return wrap
 
 
+
 # Logout
 @app.route('/logout')
 def logout():
@@ -135,22 +139,35 @@ def logout():
 	return redirect(url_for('login'))
 
 
+
 # Dashboard
 @app.route('/dashboard')
 @is_logged_in
 def dashboard():
-	return render_template('dashboard.html')
+	username = session['username']
+	cur = mysql.connection.cursor()
+	cur.execute('SELECT username, dayofweek, starttime, endtime FROM tbl_times WHERE username = %s', [username])
+	data = cur.fetchall()
+	cur.close()
+	# app.logger.info(results)
+	return render_template('dashboard.html', articles=data)
 
 
+
+# Check to see if admin
 def is_admin(f):
 	@wraps(f)
 	def wrap(*args, **kwargs):
-		if ('is_admin' in session):
+		chk = session['is_admin']
+		if (chk==1):
+			# app.logger.info(session['is_admin'])   ---- left comment in to show how to print to the console
 			return f(*args, **kwargs)
 		else:
 			flash('You must be an administrator', 'danger')
-			return(redirect(url_for('login')))
+			return(redirect(url_for('main')))
 	return wrap
+
+
 
 # Scheduler form
 class SchedulerForm(Form):
@@ -158,6 +175,8 @@ class SchedulerForm(Form):
 	dayofweek = StringField('Day of Week', [validators.Length(min=4, max=25)])
 	starttime = StringField('Start Time', [validators.Length(min=1, max=6)])
 	endtime = StringField('End Time', [validators.Length(min=1, max=6)])
+
+
 
 # Scheduler
 @app.route('/scheduler', methods=['GET', 'POST'])
@@ -186,6 +205,26 @@ def scheduler():
 	return render_template('scheduler.html', form=form)
 	
 
+
+@app.route('/allemployeetimes')
+@is_admin
+def allemployeetimes():
+
+	cur= mysql.connection.cursor()
+	cur.execute('SELECT * FROM tbl_times')
+	data = cur.fetchall()
+
+	for x in data:
+		name = x['username']
+		cur.execute('SELECT name FROM tbl_user WHERE username = %s', [name])
+		res = cur.fetchone()
+
+		x['name'] = res['name']
+
+	app.logger.info(data)
+
+	cur.close()
+	return render_template('allemployeetimes.html', articles = data)
 
 if __name__ == '__main__':
 	app.secret_key='secret123'

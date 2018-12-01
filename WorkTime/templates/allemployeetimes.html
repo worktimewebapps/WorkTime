@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+
+
+
+{% block body %}
+
+
+    
+    <ul>
+        <h1>Employee Work Times</h1> 
+        <br>
+        <br>
+
+    	{% for article in articles %}
+    		<li class="list-group-item">
+                <a><b>Employee:</b> {{article.name}}</a><br>
+    			<a><b>Day:</b> {{article.dayofweek}}<a><br>
+    			<a><b>Start:</b> {{article.starttime}}</a><br>
+    			<a><b>End:</b> {{article.endtime}}</a>
+    		</li>
+    	{% endfor %}
+    </ul>
+
+{% endblock %}

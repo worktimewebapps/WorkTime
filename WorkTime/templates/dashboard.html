@@ -5,6 +5,19 @@
 
 {% block body %}
 
-    <h1>Welcome {{session.name}} <br><br><small>Dashboard</small></h1> 
+    <h1>Welcome {{session.name}}</h1> 
+    <br>
+    <br>
+    
+    <ul>
+    	<h3>Your Schedule</h3>
+    	{% for article in articles %}
+    		<li class="list-group-item">
+    			<a>Day:   &nbsp;&nbsp;  {{article.dayofweek}}<a><br>
+    			<a>Start: &nbsp;{{article.starttime}}</a><br>
+    			<a>End:   &nbsp;&nbsp; {{article.endtime}}</a>
+    		</li>
+    	{% endfor %}
+    </ul>
 
 {% endblock %}
