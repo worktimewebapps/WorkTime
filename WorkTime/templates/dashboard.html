@@ -10,12 +10,12 @@
     <br>
     
     <ul>
-    	<h3>Your Schedule</h3>
+    	<h3>Your Shifts</h3>
     	{% for article in articles %}
     		<li class="list-group-item">
-    			<a>Day:   &nbsp;&nbsp;  {{article.dayofweek}}<a><br>
-    			<a>Start: &nbsp;{{article.starttime}}</a><br>
-    			<a>End:   &nbsp;&nbsp; {{article.endtime}}</a>
+    			<a><b>Day:</b>   &nbsp;&nbsp;  {{article.dayofweek}}<a><br>
+    			<a><b>Start:</b> &nbsp;{{article.starttime}}</a><br>
+    			<a><b>End:</b>   &nbsp;&nbsp; {{article.endtime}}</a>
     		</li>
     	{% endfor %}
     </ul>

@@ -3,6 +3,8 @@
 {% block body %}
 
     <h1>Scheduler</h1>
+  
+
     {% from "includes/_formhelpers.html" import render_field %}
     <form method="POST" action="">
     	<div class="form-group">
@@ -19,5 +21,11 @@
     	</div>
     	<p><input type="submit" class=" btn btn-primary" value=Submit></p>
     </form>
+
+    <br><br>
+    <h3>Employee Usernames</h3>
+    {%for n in nameuser%}
+        <a><b>{{n.name}}:</b>   &nbsp;&nbsp;  {{n.username}}<a><br>
+    {%endfor%}
 
 {% endblock %}

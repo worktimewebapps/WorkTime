@@ -50,7 +50,7 @@ def is_admin(f):
 			return f(*args, **kwargs)
 		else:
 			flash('You must be an administrator', 'danger')
-			return(redirect(url_for('main')))
+			return(redirect(url_for('dashboard')))
 	return wrap
 
 
@@ -62,7 +62,7 @@ def is_logged_in(f):
 		if('logged_in' in session):
 			return f(*args, **kwargs)
 		else:
-			flash('Unauthorized, please login', 'danger')
+			flash('Please login', 'danger')
 			return(redirect(url_for('login')))
 	return wrap
 
@@ -95,7 +95,7 @@ def register():
 		mysql.connection.commit()
 		cur.close()
 
-		flash(u"You are now registered and can login", "success")
+		flash(u"User has been registered", "success")
 		redirect(url_for('main'))
 	return render_template('register.html', form=form)
 
@@ -185,13 +185,12 @@ class SchedulerForm(Form):
 @is_admin
 def scheduler():
 	form = SchedulerForm(request.form)
+	cur = mysql.connection.cursor()
 	if request.method == 'POST' and form.validate():
 		username = form.username.data
 		dayofweek = form.dayofweek.data
 		starttime = form.starttime.data
 		endtime = form.endtime.data
-
-		cur = mysql.connection.cursor()
 
 		result = cur.execute("SELECT * FROM tbl_user WHERE username = %s", [username])
 
@@ -201,10 +200,14 @@ def scheduler():
 		
 		cur.execute("INSERT INTO tbl_times(username, dayofweek, starttime, endtime) VALUES (%s,%s,%s,%s)", (username, dayofweek, starttime, endtime))
 		mysql.connection.commit()
-		cur.close()
+		
 
 		flash(u"Successfully Added", "success")
-	return render_template('scheduler.html', form=form)
+
+	cur.execute('SELECT name, username FROM tbl_user')
+	nameuser = cur.fetchall()
+	cur.close()
+	return render_template('scheduler.html', form=form, nameuser=nameuser)
 	
 
 
@@ -223,6 +226,10 @@ def clearall():
 def allemployeetimes():
 
 	cur= mysql.connection.cursor()
+
+	cur.execute('SELECT name FROM tbl_user')
+	names = cur.fetchall()
+
 	cur.execute('SELECT * FROM tbl_times')
 	data = cur.fetchall()
 
@@ -236,7 +243,7 @@ def allemployeetimes():
 	# app.logger.info(data)
 
 	cur.close()
-	return render_template('allemployeetimes.html', articles = data)
+	return render_template('allemployeetimes.html', data=data, names=names)
 
 
 
