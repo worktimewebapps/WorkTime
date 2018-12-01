@@ -8,12 +8,16 @@
 
     
     <ul>
-        <h1 class="text-center">Employee Shifts</h1> 
+        <h1>Employee Shifts</h1> 
         <br>
         <br>
     
         {% for n in names%}
-            <h3>{{n.name}}</h3>
+            {% if n.name == 'admin' %}
+                <h3>{{n.name}}</h3>
+            {% else %}
+                <h3>{{n.name}} &nbsp;&nbsp;&nbsp;<a href="/deleteuser/{{n.username}}"><input type="button" class="btn btn-dark" value="Delete Employee"></a></h3> 
+            {% endif %}
         	{% for d in data %}
                 {% if n.name == d.name%}
             		<li class="list-group-item">

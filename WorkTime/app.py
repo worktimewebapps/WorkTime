@@ -11,7 +11,7 @@ app = Flask(__name__)
 #Config MySQL
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Romeo727'
+app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'work'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'   
 # app.config['CLEARDB_DATABASE_URL'] = ''      
@@ -183,6 +183,15 @@ def dashboard():
 	return render_template('dashboard.html', articles=data)
 
 
+@app.route('/deleteuser/<string:username>')
+@is_logged_in
+@is_admin
+def deleteuser(username):
+	cur = mysql.connection.cursor()
+	cur.execute('DELETE from tbl_user WHERE username = %s', [username])
+	cur.execute('DELETE from tbl_times WHERE username = %s', [username])
+	mysql.connection.commit()
+	return redirect(url_for('allemployeetimes'))
 
 
 # Scheduler
@@ -234,7 +243,7 @@ def clearall():
 def allemployeetimes():
 
 	cur= mysql.connection.cursor()
-	cur.execute('SELECT name FROM tbl_user')
+	cur.execute('SELECT name, username FROM tbl_user')
 	names = cur.fetchall()
 
 	cur.execute('SELECT * FROM tbl_times')
@@ -265,6 +274,7 @@ def deleteshift(id):
 
 	flash("Deleted shift", "success")
 	return redirect(url_for('allemployeetimes'))
+
 
 @app.route('/editshift/<string:id>/', methods = ['GET', 'POST'])
 @is_logged_in
