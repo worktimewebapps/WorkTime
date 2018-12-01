@@ -13,14 +13,19 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'work'
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'         
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'   
+# app.config['CLEARDB_DATABASE_URL'] = ''      
 
 mysql = MySQL(app)
 
 
 @app.route('/')
 def main():
-	
+	make_admin()
+	return render_template('index.html')
+
+
+def make_admin():
 	curr = mysql.connection.cursor()
 	results = curr.execute("SELECT * FROM tbl_user WHERE admin = true")
 	curr.close()
@@ -34,9 +39,6 @@ def main():
 		cur.execute("INSERT INTO tbl_user(name, username, password, admin) VALUES (%s,%s, %s, true)", (aname, ausername, passadmin))
 		mysql.connection.commit()
 		cur.close()
-
-	return render_template('index.html')
-
 
 
 
@@ -76,12 +78,28 @@ class RegisterForm(Form):
 		validators.DataRequired(),
 		validators.EqualTo('confirm', message="Passwords do not match")
 	])
-	confirm = PasswordField('Comfirm Password')
+	confirm = PasswordField('Confirm Password')
+
+
+
+# Scheduler form
+class SchedulerForm(Form):
+	username = StringField('Username', [validators.Length(min=1, max=50)])
+	dayofweek = StringField('Day of Week', [validators.Length(min=4, max=25)])
+	starttime = StringField('Start Time', [validators.Length(min=1, max=10)])
+	endtime = StringField('End Time', [validators.Length(min=1, max=10)])
+
+# Scheduler form
+class ShiftEditForm(Form):
+	dayofweek = StringField('Day of Week', [validators.Length(min=4, max=25)])
+	starttime = StringField('Start Time', [validators.Length(min=1, max=10)])
+	endtime = StringField('End Time', [validators.Length(min=1, max=10)])
 
 
 
 # Register User
 @app.route('/register', methods = ['GET', 'POST'])
+@is_logged_in
 @is_admin
 def register():
 	form = RegisterForm(request.form)
@@ -104,13 +122,13 @@ def register():
 # User Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+	make_admin()
 	if request.method=='POST':
 		# Get form fields
 		username = request.form['username']
 		password_pre = request.form['password']
 
 		# Create cursor
-
 		cur = mysql.connection.cursor()
 
 		result = cur.execute("SELECT * FROM tbl_user WHERE username = %s", [username])
@@ -127,11 +145,6 @@ def login():
 				session['logged_in'] = True
 				session['username'] = username
 				session['name'] = name
-				# session['dayofweek'] = dayofweek
-				# session['starttime'] = startime
-				# session['endtime'] = endtime
-
-
 
 				flash('You are now logged in', 'success')
 				return redirect(url_for('dashboard'))
@@ -171,17 +184,10 @@ def dashboard():
 
 
 
-# Scheduler form
-class SchedulerForm(Form):
-	username = StringField('Username', [validators.Length(min=1, max=50)])
-	dayofweek = StringField('Day of Week', [validators.Length(min=4, max=25)])
-	starttime = StringField('Start Time', [validators.Length(min=1, max=10)])
-	endtime = StringField('End Time', [validators.Length(min=1, max=10)])
-
-
 
 # Scheduler
 @app.route('/scheduler', methods=['GET', 'POST'])
+@is_logged_in
 @is_admin
 def scheduler():
 	form = SchedulerForm(request.form)
@@ -212,6 +218,7 @@ def scheduler():
 
 
 @app.route('/clearall')
+@is_logged_in
 def clearall():
 	cur = mysql.connection.cursor()
 	cur.execute('DELETE from tbl_times WHERE username <> "admin"')
@@ -222,11 +229,11 @@ def clearall():
 
 
 @app.route('/allemployeetimes')
+@is_logged_in
 @is_admin
 def allemployeetimes():
 
 	cur= mysql.connection.cursor()
-
 	cur.execute('SELECT name FROM tbl_user')
 	names = cur.fetchall()
 
@@ -245,6 +252,42 @@ def allemployeetimes():
 	cur.close()
 	return render_template('allemployeetimes.html', data=data, names=names)
 
+
+
+@app.route('/deleteshift/<string:id>')
+@is_logged_in
+@is_admin
+def deleteshift(id):
+	
+	cur = mysql.connection.cursor()
+	cur.execute("DELETE from tbl_times WHERE id = %s", [id])
+	mysql.connection.commit()
+
+	flash("Deleted shift", "success")
+	return redirect(url_for('allemployeetimes'))
+
+@app.route('/editshift/<string:id>/', methods = ['GET', 'POST'])
+@is_logged_in
+@is_admin
+def editshift(id):
+	form = ShiftEditForm(request.form)
+	cur = mysql.connection.cursor()
+
+	cur.execute('SELECT * FROM tbl_times WHERE id = %s', [id])
+	shift = cur.fetchone()
+
+	if request.method == 'POST' and form.validate():
+		dayofweek = form.dayofweek.data
+		starttime = form.starttime.data
+		endtime = form.endtime.data
+
+		cur.execute("UPDATE tbl_times SET dayofweek=%s, starttime=%s, endtime=%s WHERE id = %s ", (dayofweek,starttime,endtime,id))
+
+		mysql.connection.commit()
+
+		flash("Edit Success", "success")
+	
+	return render_template('editshift.html', form=form, shift=shift)
 
 
 

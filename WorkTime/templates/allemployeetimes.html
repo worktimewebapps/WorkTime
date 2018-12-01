@@ -11,11 +11,7 @@
         <h1>Employee Shifts</h1> 
         <br>
         <br>
-        <a href="/clearall"><input type="button" class="btn btn-primary" value="Clear All"></a>
-        <br>
-        <br>
-
-
+    
         {% for n in names%}
             <h3>{{n.name}}</h3>
         	{% for d in data %}
@@ -24,12 +20,15 @@
                         <a><b>Employee:</b> {{d.name}}</a><br>
             			<a><b>Day:</b> {{d.dayofweek}}<a><br>
             			<a><b>Start:</b> {{d.starttime}}</a><br>
-            			<a><b>End:</b> {{d.endtime}}</a>
+            			<a><b>End:</b> {{d.endtime}}</a><br><br>
+                        <a href="/deleteshift/{{d.id}}"><input type="button" class="btn btn-dark" value="Delete"></a>
+                        <a href="/editshift/{{d.id}}"><input type="button" class="btn btn-dark" value="Edit"></a>
             		</li>
                 {% endif %}
         	{% endfor %}
             <br><br>
         {% endfor %}
+        <a href="/clearall"><input type="button" class="btn btn-danger" value="Clear All"></a>
         <br>
         <br>
         <br>

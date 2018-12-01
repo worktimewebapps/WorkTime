@@ -9,9 +9,11 @@ create table work.tbl_user(
 	primary key (id));
 		     
 create table work.tbl_times( 
+	id INT AUTO_INCREMENT,
 	username VARCHAR(100) NULL, 
 	dayofweek VARCHAR(100) NULL,
    	starttime VARCHAR(100) NULL,
-  	endtime VARCHAR(100) NULL);
+  	endtime VARCHAR(100) NULL,
+	primary key (id));
 
 

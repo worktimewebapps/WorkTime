@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+
+
+
+{% block body %}
+	
+	<ul>
+    	<h1>Edit Shift</h1>
+    		<li class="list-group-item">
+    			<a><b>Day:</b>   &nbsp;&nbsp;  {{shift.dayofweek}}<a><br>
+    			<a><b>Start:</b> &nbsp;{{shift.starttime}}</a><br>
+    			<a><b>End:</b>   &nbsp;&nbsp; {{shift.endtime}}</a>
+    		</li><br><br><br>
+    	<h3>Edit Shift</h3><br>
+	    {% from "includes/_formhelpers.html" import render_field %}
+	    <form method="POST" action="">
+	    	<div class="form-group">
+	    		{{render_field(form.dayofweek, class_ = "form-control")}}
+	    	</div>
+	    	<div class="form-group">
+	    		{{render_field(form.starttime, class_ = "form-control")}}
+	    	</div>
+	    	<div class="form-group">
+	    		{{render_field(form.endtime, class_ = "form-control")}}
+	    	</div>
+	    	<p><input type="submit" class=" btn btn-dark" value=Save onclick="location.href=/allemployeetimes"></p>
+	    </form>
+    </ul>
+
+    
+
+
+
+{% endblock %}
