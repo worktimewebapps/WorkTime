@@ -13,7 +13,7 @@
         <br>
     
         {% for n in names%}
-            {% if n.name == 'admin' %}
+            {% if n.username == 'admin' %}
                 <h3>{{n.name}}</h3>
             {% else %}
                 <h3>{{n.name}} &nbsp;&nbsp;&nbsp;<a href="/deleteuser/{{n.username}}"><input type="button" class="btn btn-dark" value="Delete Employee"></a></h3> 
