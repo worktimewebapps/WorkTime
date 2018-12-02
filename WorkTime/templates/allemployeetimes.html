@@ -8,7 +8,7 @@
 
     
     <ul>
-        <h1>Employee Shifts</h1> 
+        <h1 class="text-center mt-5">Employee Shifts</h1> 
         <br>
         <br>
     
@@ -21,18 +21,17 @@
         	{% for d in data %}
                 {% if n.name == d.name%}
             		<li class="list-group-item">
-                        <a><b>Employee:</b> {{d.name}}</a><br>
             			<a><b>Day:</b> {{d.dayofweek}}<a><br>
+                        <a href="/editshift/{{d.id}}"><input type="button" class="btn btn-dark float-right mr-2" value="Edit"></a>
+                        <a href="/deleteshift/{{d.id}}"><input type="button" class="btn btn-dark float-right mr-2" value="Delete"></a>
             			<a><b>Start:</b> {{d.starttime}}</a><br>
             			<a><b>End:</b> {{d.endtime}}</a><br><br>
-                        <a href="/deleteshift/{{d.id}}"><input type="button" class="btn btn-dark" value="Delete"></a>
-                        <a href="/editshift/{{d.id}}"><input type="button" class="btn btn-dark" value="Edit"></a>
             		</li>
                 {% endif %}
         	{% endfor %}
             <br><br>
         {% endfor %}
-        <a href="/clearall"><input type="button" class="btn btn-danger" value="Clear All"></a>
+        <a href="/clearall" class="float-right"><input type="button" class="btn btn-warning" value="Clear All"></a>
         <br>
         <br>
         <br>

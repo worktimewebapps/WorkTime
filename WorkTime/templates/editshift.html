@@ -6,15 +6,15 @@
 {% block body %}
 	
 	<ul>
-    	<h1 class="text-center">Edit Shift</h1>
+    	<h1 class="text-center mt-5">Edit Shift</h1>
     		<li class="list-group-item">
-    			<a><b>Day:</b>   &nbsp;&nbsp;  {{shift.dayofweek}}<a><br>
+    			<a><b>Day:</b>   &nbsp;&nbsp;  {{shift.dayofweek}}</a><br>
     			<a><b>Start:</b> &nbsp;{{shift.starttime}}</a><br>
     			<a><b>End:</b>   &nbsp;&nbsp; {{shift.endtime}}</a>
     		</li><br><br><br>
-    	<h3>Edit Shift</h3><br>
+    	<p class="mx-auto text-center col-sm-6">Enter new schedule information to replace the schedule listed above</p>
 	    {% from "includes/_formhelpers.html" import render_field %}
-	    <form method="POST" action="">
+	    <form method="POST" action="" class="mx-auto col-sm-6 text-center">
 	    	<div class="form-group">
 	    		{{render_field(form.dayofweek, class_ = "form-control")}}
 	    	</div>
