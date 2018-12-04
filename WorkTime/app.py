@@ -1,5 +1,3 @@
-
-
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, session, request
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
@@ -25,6 +23,39 @@ def main():
 	return render_template('index.html')
 
 
+
+#-------------------------------FORMS--------------------------------------#
+
+# Registration form class
+class RegisterForm(Form):
+	name = StringField('Name', [validators.Length(min=1, max=50)])
+	username = StringField('Username', [validators.Length(min=4, max=25)])
+	password = PasswordField('Password', [
+		validators.DataRequired(),
+		validators.EqualTo('confirm', message="Passwords do not match")
+	])
+	confirm = PasswordField('Confirm Password')
+
+# Scheduler form
+class SchedulerForm(Form):
+	username = StringField('Username', [validators.Length(min=1, max=50)])
+	dayofweek = StringField('Day of Week', [validators.Length(min=4, max=25)])
+	starttime = StringField('Start Time', [validators.Length(min=1, max=10)])
+	endtime = StringField('End Time', [validators.Length(min=1, max=10)])
+
+# Scheduler form
+class ShiftEditForm(Form):
+	dayofweek = StringField('Day of Week', [validators.Length(min=4, max=25)])
+	starttime = StringField('Start Time', [validators.Length(min=1, max=10)])
+	endtime = StringField('End Time', [validators.Length(min=1, max=10)])
+
+#--------------------------------------------------------------------------#
+
+
+
+
+
+# Makes Admin on login or dropscreen
 def make_admin():
 	curr = mysql.connection.cursor()
 	results = curr.execute("SELECT * FROM tbl_user WHERE admin = true")
@@ -68,32 +99,6 @@ def is_logged_in(f):
 			return(redirect(url_for('login')))
 	return wrap
 
-
-
-# Registration form class
-class RegisterForm(Form):
-	name = StringField('Name', [validators.Length(min=1, max=50)])
-	username = StringField('Username', [validators.Length(min=4, max=25)])
-	password = PasswordField('Password', [
-		validators.DataRequired(),
-		validators.EqualTo('confirm', message="Passwords do not match")
-	])
-	confirm = PasswordField('Confirm Password')
-
-
-
-# Scheduler form
-class SchedulerForm(Form):
-	username = StringField('Username', [validators.Length(min=1, max=50)])
-	dayofweek = StringField('Day of Week', [validators.Length(min=4, max=25)])
-	starttime = StringField('Start Time', [validators.Length(min=1, max=10)])
-	endtime = StringField('End Time', [validators.Length(min=1, max=10)])
-
-# Scheduler form
-class ShiftEditForm(Form):
-	dayofweek = StringField('Day of Week', [validators.Length(min=4, max=25)])
-	starttime = StringField('Start Time', [validators.Length(min=1, max=10)])
-	endtime = StringField('End Time', [validators.Length(min=1, max=10)])
 
 
 
@@ -183,6 +188,8 @@ def dashboard():
 	return render_template('dashboard.html', articles=data)
 
 
+
+# Delete User
 @app.route('/deleteuser/<string:username>')
 @is_logged_in
 @is_admin
@@ -225,7 +232,7 @@ def scheduler():
 	return render_template('scheduler.html', form=form, nameuser=nameuser)
 	
 
-
+# Clear all
 @app.route('/clearall')
 @is_logged_in
 def clearall():
@@ -237,6 +244,7 @@ def clearall():
 
 
 
+# Employees
 @app.route('/allemployeetimes')
 @is_logged_in
 @is_admin
@@ -263,6 +271,7 @@ def allemployeetimes():
 
 
 
+# Delete Shift
 @app.route('/deleteshift/<string:id>')
 @is_logged_in
 @is_admin
@@ -276,6 +285,8 @@ def deleteshift(id):
 	return redirect(url_for('allemployeetimes'))
 
 
+
+# Edit Shift
 @app.route('/editshift/<string:id>/', methods = ['GET', 'POST'])
 @is_logged_in
 @is_admin
@@ -301,6 +312,7 @@ def editshift(id):
 
 
 
+# Main
 if __name__ == '__main__':
 	app.secret_key='secret123'
 	app.run(debug=True)
