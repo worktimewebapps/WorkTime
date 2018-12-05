@@ -14,6 +14,8 @@ app.config['MYSQL_DB'] = 'work'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'   
 # app.config['CLEARDB_DATABASE_URL'] = ''      
 
+
+
 mysql = MySQL(app)
 
 
