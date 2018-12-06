@@ -16,6 +16,7 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 
 
+
 mysql = MySQL(app)
 
 
